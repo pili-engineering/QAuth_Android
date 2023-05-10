@@ -9,7 +9,7 @@
 
 ## 本地集成
 ### 导入sdk
-下载sdk:QAuth-sdk-x.x.x.aar,导入你的安卓工程
+下载sdk:[QAuth-sdk-x.x.x.aar](https://github.com/pili-engineering/QAuth_Android/tree/main/sdk-aar),导入你的安卓工程
 
 ### 权限配置
 
