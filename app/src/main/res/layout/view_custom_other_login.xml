@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
+        android:text="其他方式登录:"
+        android:textColor="#1E3179"
+        android:textSize="15sp" />
+
+    <ImageView
+        android:id="@+id/login_demo_weixin"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="30dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/login_demo_weixin" />
+
+    <ImageView
+        android:id="@+id/login_demo_qq"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="30dp"
+        android:src="@mipmap/login_demo_qq" />
+
+    <ImageView
+        android:id="@+id/login_demo_weibo"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/login_demo_weibo" />
+</LinearLayout>
