@@ -1,4 +1,11 @@
 # 安卓快速集成文档
+## 体验demo
+下载[app文件](https://github.com/pili-engineering/QAuth_Android/blob/main/app-debug.apk)
+
+## 快速跑通demo
+* 申请七牛一键登录appID
+* 修改build.gradle文件下的包名、签名文件、appID、appKey信息
+* 运行demo工程
 
 ## 本地集成
 ### 导入sdk
@@ -191,7 +198,7 @@ public static void setTimeOutForPreLogin(int timeSecond)
 号码栏ID：qn_tv_per_code** 
 
 ### 自定义修改授权页布局修改
-步骤一 、拷贝qlogin_activity_quick_login.xml并重命名至你的项目res->layout下
+步骤一 、拷贝[qlogin_activity_quick_login.xml](https://github.com/pili-engineering/QAuth_Android/blob/main/app/src/main/res/layout/qlogin_activity_quick_login.xml)并重命名至你的项目res->layout下
 按需修改样式
 步骤二 、按需设置配置项目
 ``` java
