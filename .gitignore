@@ -1,5 +1,4 @@
 # Built application files
-*.apk
 *.ap_
 /local.properties
 # Files for the Dalvik VM
