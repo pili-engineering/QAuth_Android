@@ -17,21 +17,26 @@ import com.qiniu.qlogin_core.QUIConfig
 import com.qiniu.qlogin_core.StatusBarConfig
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        init {
+            QAuth.preMobile(object : QCallback<Void> {
+                override fun onSuccess(data: Void?) {
+                    Log.d("QAuth", "预取号成功")
+                }
+
+                override fun onError(code: Int, msg: String) {
+                    Log.d("QAuth", "预取号失败 ")
+                }
+            })
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.d("QAuth", "preMobile")
-        QAuth.preMobile(object : QCallback<Void> {
-            override fun onSuccess(data: Void?) {
-                Log.d("QAuth", "预取号成功")
-                Toast.makeText(this@MainActivity, "预取号成功", Toast.LENGTH_SHORT).show()
-            }
 
-            override fun onError(code: Int, msg: String) {
-                Log.d("QAuth", "预取号失败 ")
-                Toast.makeText(this@MainActivity, "预取号失败 ${msg}", Toast.LENGTH_SHORT).show()
-            }
-        })
         val openLoginAuthCallback = object : QCallback<String> {
             override fun onSuccess(data: String?) {
                 Log.d("QAuth", "openLoginAuthCallback $data ")
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn1).setOnClickListener {
             QAuth.setUIConfig(null)
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
 
         findViewById<View>(R.id.btn2).setOnClickListener {
@@ -55,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                     isVerticalActivity = false
                 }
             })
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
 
         findViewById<View>(R.id.btn3).setOnClickListener {
@@ -70,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
         findViewById<View>(R.id.btn4).setOnClickListener {
 
@@ -87,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
 
         findViewById<View>(R.id.btn5).setOnClickListener {
@@ -129,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
 
         findViewById<View>(R.id.btn6).setOnClickListener {
@@ -146,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     isVerticalActivity = false
                 }
             })
-            QAuth.openLoginAuth(this, openLoginAuthCallback)
+            QAuth.openLoginAuth(true, this, openLoginAuthCallback)
         }
 
         findViewById<View>(R.id.btn7).setOnClickListener {

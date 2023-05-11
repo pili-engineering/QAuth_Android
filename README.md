@@ -49,7 +49,6 @@
     ***
     android:networkSecurityConfig="@xml/network_security_config"
     ></application>
-
 ```
 network_security_config.xml文件：
 ```<?xml version="1.0" encoding="utf-8"?>
@@ -79,9 +78,7 @@ QAuth.init(this, "your appID", "your appKey")
 public static void init(Context context, String appID, String appKey) 
 ```
 ### 预取号
-
-获取取号临时凭证；建议在调用拉起授权页前2~3秒调用，可以缩短拉起授权页耗时；如果启动app就需要展示授权页，中间没有2~3秒的间隔，不建议调用，起不到缩短时间的效果。
-
+获取取号临时凭证；建议在调用拉起授权页前2到3秒调用，可以缩短拉起授权页耗时；如果启动app就需要展示授权页，中间没有2到3秒的间隔，不建议调用，起不到缩短时间的效果。
 示例代码
 ```java
 QAuth.preMobile(new QCallback<Void>() {
@@ -100,7 +97,7 @@ QAuth.preMobile(new QCallback<Void>() {
 
 示例代码
 ```java
-QAuth.openLoginAuth(this, new QCallback<String>() {
+QAuth.openLoginAuth(true, this, new QCallback<String>() {
     @Override
     public void onError(int code, @NonNull String msg) {}
     @Override
@@ -110,10 +107,13 @@ QAuth.openLoginAuth(this, new QCallback<String>() {
 方法原型
 ```java
 /**
- * @param activity 当前activity
- * @param callback 操作回调
+ * 拉起授权页&获取token
+ *
+ * @param isDestroyWhenCallback 点击授权页一键登录按钮有回调时是否自动销毁授权页：true：自动销毁,false:不自动销毁，开发者需主动调用销毁授权页方法进行授权页销毁操作
+ * @param activity              当前activity
+ * @param callback              操作回调
  */
-public static void openLoginAuth(Activity activity, QCallback<String> callback)
+public static void openLoginAuth(Boolean isDestroyWhenCallback, Activity activity, QCallback<String> callback)
 ```
 当callback回调成功会获取到置换手机号所需的token。请参考「服务端」文档来实现获取手机号码的步骤
 

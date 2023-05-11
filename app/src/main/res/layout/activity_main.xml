@@ -36,13 +36,13 @@
         android:id="@+id/btn5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="其他样式5" />
+        android:text="自定义UI和隐私协议5" />
 
     <Button
         android:id="@+id/btn6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="其他样式6" />
+        android:text="自定义UI和隐私协议6" />
 
 
     <Button
