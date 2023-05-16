@@ -8,7 +8,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        QAuth.init(this, BuildConfig.app_id, BuildConfig.app_key)
+        QAuth.init(this, BuildConfig.app_id?:"", BuildConfig.app_key?:"")
         QAuth.setDebug(true)
     }
 }

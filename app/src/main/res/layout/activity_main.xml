@@ -36,20 +36,27 @@
         android:id="@+id/btn5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="自定义UI和隐私协议5" />
+        android:text="全部都定制样式5" />
 
     <Button
         android:id="@+id/btn6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="自定义UI和隐私协议6" />
+        android:text="全部都定制样式6" />
 
+
+    <EditText
+        android:id="@+id/tvPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:hint="本机号码验证" />
 
     <Button
         android:id="@+id/btn7"
-        android:layout_marginTop="24dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="本机号码验证" />
 
 </LinearLayout>
