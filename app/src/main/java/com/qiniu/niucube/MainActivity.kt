@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import com.qiniu.niucube.view.AbScreenUtils
 import com.qiniu.niucube.view.CustomPrivacyDialogBuilder
@@ -15,6 +16,21 @@ import com.qiniu.qlogin_core.PrivacyPage
 import com.qiniu.qlogin_core.QCallback
 import com.qiniu.qlogin_core.QUIConfig
 import com.qiniu.qlogin_core.StatusBarConfig
+import com.qiniu.qlogin_core.inner.QLogUtil
+import com.qiniu.qlogin_core.inner.backGround
+import com.qiniu.qlogin_core.inner.http.HttpClient
+import com.qiniu.qlogin_core.inner.mode.HttpResp
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +57,32 @@ class MainActivity : AppCompatActivity() {
             override fun onSuccess(data: String?) {
                 Log.d("QAuth", "openLoginAuthCallback $data ")
                 Toast.makeText(this@MainActivity, "授权成功 $data", Toast.LENGTH_SHORT).show()
+
+                //模拟接入获取token
+                backGround {
+                    doWork {
+                        val ret = postHttpReq(
+                            "https://niucube-api.qiniu.com/v1/mobileLogin",
+                            JSONObject().apply {
+                                put("token", data)
+                            }.toString(), null
+                        )
+                        Toast.makeText(
+                            this@MainActivity,
+                            "获取号码 ${JSONObject(ret.message).opt("phone")}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    catchError {
+                        it.printStackTrace()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "获取号码失败 ${it.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
             }
 
             override fun onError(code: Int, msg: String) {
@@ -155,11 +197,135 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btn7).setOnClickListener {
-            QAuth.mobileAuth(openLoginAuthCallback)
+            val phoneText = findViewById<EditText>(R.id.tvPhone).text.toString()
+            if (phoneText.isEmpty()) {
+                Toast.makeText(this, "请输入号码", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            QAuth.mobileAuth(object : QCallback<String> {
+                override fun onSuccess(data: String?) {
+                    Log.d("QAuth", "openLoginAuthCallback $data ")
+                    Toast.makeText(this@MainActivity, "授权成功 $data", Toast.LENGTH_SHORT).show()
+
+                    //模拟接入获取token
+                    backGround {
+                        doWork {
+                            val ret = postHttpReq(
+                                "https://niucube-api.qiniu.com/v1/verify/check",
+                                JSONObject().apply {
+                                    put("token", data)
+                                    put("mobile", phoneText)
+                                }.toString(), null
+                            )
+                            Toast.makeText(
+                                this@MainActivity,
+                                "本机校验结果 ${JSONObject(ret.message).opt("is_verify")}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        catchError {
+                            it.printStackTrace()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "本机校验结果 ${it.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                }
+
+                override fun onError(code: Int, msg: String) {
+                    Log.d("QAuth", "onError $code $msg ")
+                    Toast.makeText(this@MainActivity, "授权失败 $code $msg", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            )
         }
     }
 
     override fun onResume() {
         super.onResume()
+    }
+
+    private suspend fun postHttpReq(
+        path: String,
+        jsonString: String,
+        headers: Map<String, String>?
+    ) = suspendCoroutine<HttpResp> { continuation ->
+        val url = URL(path)
+        val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
+        var writer: BufferedWriter? = null
+        var inputStream: InputStream? = null
+        var br: BufferedReader? = null
+        var resultStr: String = ""// 返回结果字符串
+        var resultCode = -1
+        var resultMsg = ""
+        QLogUtil.d("QLiveHttpService", " req  $path $jsonString")
+        try {
+            urlConnection.connectTimeout = 2000
+            urlConnection.readTimeout = 2000
+            urlConnection.useCaches = true
+            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+            urlConnection.addRequestProperty("Connection", "Keep-Alive")
+            headers?.entries?.forEach {
+                urlConnection.setRequestProperty(it.key, it.value)
+            }
+            urlConnection.requestMethod = "POST"
+            writer = BufferedWriter(OutputStreamWriter(urlConnection.outputStream, "UTF-8"))
+            writer.write(jsonString)
+            writer.flush()
+            resultCode = urlConnection.responseCode
+            resultMsg = urlConnection.responseMessage
+            QLogUtil.d(" response  code-> $resultCode resultMsg-> $resultMsg")
+            if (resultCode == HttpURLConnection.HTTP_OK) {
+                inputStream = urlConnection.inputStream
+                br = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
+                val sbf = StringBuffer()
+                var temp: String? = null
+                while (br.readLine().also { temp = it } != null) {
+                    sbf.append(temp)
+                    sbf.append("\r\n")
+                }
+                resultStr = sbf.toString()
+            }
+
+        } finally {
+            try {
+                writer?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            try {
+                br?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            try {
+                inputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            urlConnection.disconnect() // 关闭远程连接
+        }
+        QLogUtil.d(" response ->  $path $jsonString   $resultCode resultStr-> $resultStr")
+        continuation.resume(if (resultCode == HttpURLConnection.HTTP_OK) {
+            val jsonObj = JSONObject(resultStr)
+            HttpResp().apply {
+                httpCode = 200
+                bzCode = jsonObj.optInt("code")
+                message = jsonObj.optString("message")
+                requestID = jsonObj.optString("request_id")
+                data = jsonObj.optString("data")
+            }
+        } else {
+            HttpResp().apply {
+                httpCode = resultCode
+                bzCode = -1
+                message = "httpCode-> $httpCode msg->$resultMsg"
+            }
+        })
     }
 }
