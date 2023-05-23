@@ -27,9 +27,11 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : AppCompatActivity() {
@@ -62,14 +64,15 @@ class MainActivity : AppCompatActivity() {
                 backGround {
                     doWork {
                         val ret = postHttpReq(
-                            "https://niucube-api.qiniu.com/v1/mobileLogin",
+                            "https://niucube-api.qiniu.com/v1/verify/login",
                             JSONObject().apply {
                                 put("token", data)
                             }.toString(), null
                         )
+                        Log.d("QAuth", "openLoginAuthCallback-postHttpReq ${ret.data} ")
                         Toast.makeText(
                             this@MainActivity,
-                            "获取号码 ${JSONObject(ret.message).opt("phone")}",
+                            "获取号码 ${JSONObject(ret.data).opt("mobile")}",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -220,7 +223,7 @@ class MainActivity : AppCompatActivity() {
                             )
                             Toast.makeText(
                                 this@MainActivity,
-                                "本机校验结果 ${JSONObject(ret.message).opt("is_verify")}",
+                                "本机校验结果 ${JSONObject(ret.data).opt("is_verify")}",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -255,77 +258,81 @@ class MainActivity : AppCompatActivity() {
         jsonString: String,
         headers: Map<String, String>?
     ) = suspendCoroutine<HttpResp> { continuation ->
-        val url = URL(path)
-        val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
-        var writer: BufferedWriter? = null
-        var inputStream: InputStream? = null
-        var br: BufferedReader? = null
-        var resultStr: String = ""// 返回结果字符串
-        var resultCode = -1
-        var resultMsg = ""
-        QLogUtil.d("QLiveHttpService", " req  $path $jsonString")
-        try {
-            urlConnection.connectTimeout = 2000
-            urlConnection.readTimeout = 2000
-            urlConnection.useCaches = true
-            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-            urlConnection.addRequestProperty("Connection", "Keep-Alive")
-            headers?.entries?.forEach {
-                urlConnection.setRequestProperty(it.key, it.value)
-            }
-            urlConnection.requestMethod = "POST"
-            writer = BufferedWriter(OutputStreamWriter(urlConnection.outputStream, "UTF-8"))
-            writer.write(jsonString)
-            writer.flush()
-            resultCode = urlConnection.responseCode
-            resultMsg = urlConnection.responseMessage
-            QLogUtil.d(" response  code-> $resultCode resultMsg-> $resultMsg")
-            if (resultCode == HttpURLConnection.HTTP_OK) {
-                inputStream = urlConnection.inputStream
-                br = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
-                val sbf = StringBuffer()
-                var temp: String? = null
-                while (br.readLine().also { temp = it } != null) {
-                    sbf.append(temp)
-                    sbf.append("\r\n")
+
+        Thread {
+            val url = URL(path)
+            val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
+            var writer: BufferedWriter? = null
+            var inputStream: InputStream? = null
+            var br: BufferedReader? = null
+            var resultStr: String = ""// 返回结果字符串
+            var resultCode = -1
+            var resultMsg = ""
+            QLogUtil.d("QLiveHttpService", " req  $path $jsonString")
+            try {
+                urlConnection.connectTimeout = 2000
+                urlConnection.readTimeout = 2000
+                urlConnection.useCaches = true
+                urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                urlConnection.addRequestProperty("Connection", "Keep-Alive")
+                headers?.entries?.forEach {
+                    urlConnection.setRequestProperty(it.key, it.value)
                 }
-                resultStr = sbf.toString()
+                urlConnection.requestMethod = "POST"
+                writer = BufferedWriter(OutputStreamWriter(urlConnection.outputStream, "UTF-8"))
+                writer.write(jsonString)
+                writer.flush()
+                resultCode = urlConnection.responseCode
+                resultMsg = urlConnection.responseMessage
+                QLogUtil.d(" response  code-> $resultCode resultMsg-> $resultMsg")
+                if (resultCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = urlConnection.inputStream
+                    br = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
+                    val sbf = StringBuffer()
+                    var temp: String? = null
+                    while (br.readLine().also { temp = it } != null) {
+                        sbf.append(temp)
+                        sbf.append("\r\n")
+                    }
+                    resultStr = sbf.toString()
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+                continuation.resumeWithException(Exception("${e.message}"))
+                return@Thread
+            } finally {
+                try {
+                    writer?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                try {
+                    br?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                try {
+                    inputStream?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                urlConnection.disconnect() // 关闭远程连接
             }
 
-        } finally {
-            try {
-                writer?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
+            QLogUtil.d(" response ->  $path $jsonString   $resultCode resultStr-> $resultStr")
+            if (resultCode == HttpURLConnection.HTTP_OK) {
+                val jsonObj = JSONObject(resultStr)
+                continuation.resume(HttpResp().apply {
+                    httpCode = 200
+                    bzCode = jsonObj.optInt("code")
+                    message = jsonObj.optString("message")
+                    requestID = jsonObj.optString("request_id")
+                    data = jsonObj.optString("data")
+                })
+            } else {
+                continuation.resumeWithException(Exception("httpCode-> $resultCode msg->$resultMsg"))
             }
-            try {
-                br?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            try {
-                inputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            urlConnection.disconnect() // 关闭远程连接
-        }
-        QLogUtil.d(" response ->  $path $jsonString   $resultCode resultStr-> $resultStr")
-        continuation.resume(if (resultCode == HttpURLConnection.HTTP_OK) {
-            val jsonObj = JSONObject(resultStr)
-            HttpResp().apply {
-                httpCode = 200
-                bzCode = jsonObj.optInt("code")
-                message = jsonObj.optString("message")
-                requestID = jsonObj.optString("request_id")
-                data = jsonObj.optString("data")
-            }
-        } else {
-            HttpResp().apply {
-                httpCode = resultCode
-                bzCode = -1
-                message = "httpCode-> $httpCode msg->$resultMsg"
-            }
-        })
+        }.start()
+
     }
 }
