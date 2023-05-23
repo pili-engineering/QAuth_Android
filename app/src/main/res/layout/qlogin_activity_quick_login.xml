@@ -84,7 +84,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/qn_ll_privacy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -92,21 +92,22 @@
         android:layout_marginStart="60dp"
         android:layout_marginEnd="60dp"
         android:layout_marginBottom="24dp"
-        android:gravity="center_horizontal|top"
-        android:orientation="horizontal">
+        android:gravity="center_horizontal|top">
 
         <CheckBox
             android:id="@+id/qn_checkbox_privacy_status"
             android:layout_width="13dp"
             android:layout_height="13dp"
-            android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
+            android:layout_marginTop="2dp"
             android:background="@drawable/qlogin_check_box"
             android:button="@null" />
 
         <com.qiniu.qlogin_core.view.PrivacyTextView
             android:id="@+id/qn_tv_privacy_text"
+            android:layout_toRightOf="@id/qn_checkbox_privacy_status"
+            android:layout_toEndOf="@id/qn_checkbox_privacy_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -116,7 +117,7 @@
             app:innerPrivacyColor="#FFF15959"
             app:privacy_tip="同意 %s 并授权获取本机号码"
             tools:text="同意 %s 并授权获取本机号码" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/qn_view_loading"
