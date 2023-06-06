@@ -275,6 +275,8 @@ class MainActivity : AppCompatActivity() {
                 urlConnection.useCaches = true
                 urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
                 urlConnection.addRequestProperty("Connection", "Keep-Alive")
+                urlConnection.addRequestProperty("Q-Plat", "android")
+                urlConnection.addRequestProperty("Q-Ver", "1.0.0")
                 headers?.entries?.forEach {
                     urlConnection.setRequestProperty(it.key, it.value)
                 }
