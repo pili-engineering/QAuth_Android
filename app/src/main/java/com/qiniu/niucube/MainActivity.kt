@@ -12,6 +12,7 @@ import com.qiniu.niucube.view.CustomPrivacyDialogBuilder
 import com.qiniu.qlogin.QAuth
 import com.qiniu.qlogin_core.DialogStyleConfig
 import com.qiniu.qlogin_core.LoginPage
+import com.qiniu.qlogin_core.Privacy
 import com.qiniu.qlogin_core.PrivacyPage
 import com.qiniu.qlogin_core.QCallback
 import com.qiniu.qlogin_core.QUIConfig
@@ -161,6 +162,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     //自定义勾选隐私协议提示
                     checkTipText = "请勾选隐私协议"
+
+                    //使用代码方式配置协议-（也可以在xml配置-代码配置优先级高于xml
+                    privacyTextTip = "同意 %s 和 %s 并授权获取本机号码"
+                    privacyList = listOf(
+                        Privacy("《七牛云服务用户协议》", Color.parseColor("#FF6200EE"), "https://www.qiniu.com/privacy-right")
+                    )
                 }
 
                 //隐私协议页配置
@@ -176,6 +183,7 @@ class MainActivity : AppCompatActivity() {
                     isVerticalActivity = true
                     //自定义布局文件
                     customLayoutID = R.layout.qlogin_activity_privacy_b5
+
                 }
             })
 
