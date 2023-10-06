@@ -127,7 +127,7 @@ QAuth.closeAuthActivity()
 public static void closeAuthActivity()
 ```
 
-#### 设置协议
+#### 设置协议勾选状态
 需要在授权页activity创建后并且未销毁的情况下调用。
 
 示例代码
@@ -223,6 +223,26 @@ statusBarConfig.statusBarColor = Color.parseColor("#FFF15959");
 loginPage.statusBarConfig = statusBarConfig;
 //自定义勾选隐私协议提示
 loginPage.checkTipText = "请勾选隐私协议";
+ //使用代码方式配置协议-（也可以在xml配置-代码配置优先级高于xml
+loginPage.privacyTextTip = "同意 %s 和 %s 并授权获取本机号码"；
+LoginPage loginPage = new LoginPage();
+loginPage.privacyList = new ArrayList<>();
+loginPage.privacyList.add(new Privacy(
+        "《七牛云服务用户协议》",
+        Color.parseColor("#FF6200EE"),
+        "https://www.qiniu.com/privacy-right"
+));
+loginPage.privacyList.add(new Privacy(
+        "《七牛云服务用户协议》",
+        Color.parseColor("#FF6200EE"),
+        "https://www.qiniu.com/privacy-right"
+));
+//设置跳转隐私协议拦截
+loginPage.privacyClickListener = (context, url, privacyTittle) -> {
+    //返回是否拦截跳转
+    return false;
+};
+                   
 
 //设置登录页面
 uiConfig.loginPage = loginPage;
@@ -235,13 +255,14 @@ privacyPage.statusBarConfig = statusBarConfig;
 privacyPage.isVerticalActivity = true;
 //自定义布局文件
 privacyPage.customLayoutID = R.layout.custom_activity_privacy;
+
 //设置协议页面
 uiConfig.privacyPage = privacyPage;
 
 QAuth.setUIConfig(uiConfig);
 ``` 
 ### 自定义隐私协议
-
+xml中静态设置如下（也可以在代码中动态设置）
 ``` 
 <com.qiniu.qlogin_core.view.PrivacyTextView
     android:gravity="center"
