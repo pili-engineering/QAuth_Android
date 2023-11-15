@@ -242,8 +242,7 @@ loginPage.privacyClickListener = (context, url, privacyTittle) -> {
     //返回是否拦截跳转
     return false;
 };
-                   
-
+                 
 //设置登录页面
 uiConfig.loginPage = loginPage;
 
