@@ -18,6 +18,7 @@ import com.qiniu.qlogin_core.PrivacyPage
 import com.qiniu.qlogin_core.QCallback
 import com.qiniu.qlogin_core.QUIConfig
 import com.qiniu.qlogin_core.StatusBarConfig
+import com.qiniu.qlogin_core.UIEventListener
 import com.qiniu.qlogin_core.inner.QLogUtil
 import com.qiniu.qlogin_core.inner.backGround
 import com.qiniu.qlogin_core.inner.http.HttpClient
@@ -224,6 +225,7 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                         false
                     }
+                    isPrivacyTextUnderlineText = false
                 }
             })
             QAuth.openLoginAuth(true, this, openLoginAuthCallback)
@@ -277,10 +279,25 @@ class MainActivity : AppCompatActivity() {
             }
             )
         }
+
+        QAuth.setUIEventListener(object : UIEventListener {
+            override fun onPrivacyCheckBoxStateChange(checked: Boolean) {
+                Log.d("UIEventListener","隐私协议勾选框同意状态变化 $checked")
+            }
+
+            override fun loginBtnClicked() {
+                Log.d("UIEventListener","登陆按钮点击事件")
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        QAuth.setUIEventListener(null)
     }
 
     private suspend fun postHttpReq(

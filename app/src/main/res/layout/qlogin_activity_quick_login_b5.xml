@@ -119,6 +119,7 @@
             app:privacy_color2="@color/teal_700"
             app:privacy_text1="《七牛云服务用户协议》"
             app:privacy_text2="《隐私权政策》"
+            app:isUnderlineText="false"
             app:privacy_tip="同意 %s %s 和 %s 并授权获取本机号码"
             app:privacy_url1="https://www.qiniu.com/privacy-right"
             app:privacy_url2="https://www.qiniu.com/user-agreement" />

@@ -1,15 +1,21 @@
 # 安卓快速集成文档
+
 ## 体验demo
+
 下载[app文件](https://github.com/pili-engineering/QAuth_Android/blob/main/app-debug.apk)
 
 ## 快速跑通demo
+
 * 申请七牛一键登录appID
 * 修改build.gradle文件下的包名、签名文件、appID、appKey信息
 * 运行demo工程
 
 ## 本地集成
+
 ### 导入sdk
-下载sdk:[QAuth-sdk-x.x.x.aar](https://github.com/pili-engineering/QAuth_Android/tree/main/sdk-aar),导入你的安卓工程
+
+下载sdk:[QAuth-sdk-x.x.x.aar](https://github.com/pili-engineering/QAuth_Android/tree/main/sdk-aar)
+,导入你的安卓工程
 
 ### 权限配置
 
@@ -22,17 +28,16 @@
 <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
 ```
 
-
-| 权限名称             | 权限说明                 | 使用说明                                    |
-|----------------------|--------------------------|---------------------------------------------|
-| INTERNET             | 允许应用程序联网         | 用于访问网关和认证服务器                    |
-| ACCESS_WIFI_STATE    | 允许访问WiFi网络状态信息 | 允许程序访问WiFi网络状态信息                |
-| ACCESS_NETWORK_STATE | 允许访问网络状态         | 区分移动网络或WiFi网络                      |
+| 权限名称                 | 权限说明           | 使用说明                     |
+|----------------------|----------------|--------------------------|
+| INTERNET             | 允许应用程序联网       | 用于访问网关和认证服务器             |
+| ACCESS_WIFI_STATE    | 允许访问WiFi网络状态信息 | 允许程序访问WiFi网络状态信息         |
+| ACCESS_NETWORK_STATE | 允许访问网络状态       | 区分移动网络或WiFi网络            |
 | CHANGE_NETWORK_STATE | 允许改变网络连接状态     | 设备在WiFi跟数据双开时，强行切换使用数据网络 |
-| CHANGE_WIFI_STATE    | 允许改变WiFi网络连接状态 | 设备在WiFi跟数据双开时，强行切换使用         |
-
+| CHANGE_WIFI_STATE    | 允许改变WiFi网络连接状态 | 设备在WiFi跟数据双开时，强行切换使用     |
 
 ### 配置对http协议的支持
+
 两种方式（任选其一）：
 方式一：在application标签中配置usesCleartextTraffic，示例如下
 
@@ -44,13 +49,16 @@
 ```
 
 方式二：将域名10010.com设置为白名单，示例如下
+
 ```<application
     android:name=".view.MyApplication"
     ***
     android:networkSecurityConfig="@xml/network_security_config"
     ></application>
 ```
+
 network_security_config.xml文件：
+
 ```<?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
@@ -62,49 +70,60 @@ network_security_config.xml文件：
 ## 一键登录api
 
 ### 初始化
+
 调用SDK其他流程方法前，请确保已调用过初始化，否则会返回未初始化。建议在application.onCeate()中初始化。
 
 示例代码
+
 ```java 
-QAuth.init(this, "your appID", "your appKey")
+QAuth.init(this,"your appID","your appKey")
 ```
+
 方法原型
+
 ```java
 /**
  * @param context applicationContext
  * @param appID   七牛一键登录appID
  * @param appKey  七牛一键登录appKey
  */
-public static void init(Context context, String appID, String appKey) 
+public static void init(Context context,String appID,String appKey) 
 ```
+
 ### 预取号
+
 获取取号临时凭证；建议在调用拉起授权页前2到3秒调用，可以缩短拉起授权页耗时；如果启动app就需要展示授权页，中间没有2到3秒的间隔，不建议调用，起不到缩短时间的效果。
 示例代码
-```java
-QAuth.preMobile(new QCallback<Void>() {
-    @Override
-    public void onError(int code, @NonNull String msg) {}
 
-    @Override
-    public void onSuccess(@Nullable Void data) {}
-});
+```java
+QAuth.preMobile(new QCallback<Void>(){
+@Override
+public void onError(int code,@NonNull String msg){}
+
+@Override
+public void onSuccess(@Nullable Void data){}
+        });
 ```
 
 ### 拉起授权页&获取token
+
 * 拉起授权页方法将会调起运营商授权页面。已登录状态请勿调用 。
 * 每次调用拉起授权页方法前均需先调用授权页配置方法，否则授权页可能会展示异常。
 * 必须保证上一次拉起的授权页已经销毁再调用，否则SDK会返回请求频繁。
 
 示例代码
+
 ```java
-QAuth.openLoginAuth(true, this, new QCallback<String>() {
-    @Override
-    public void onError(int code, @NonNull String msg) {}
-    @Override
-    public void onSuccess(@Nullable String data) {}
-});
+QAuth.openLoginAuth(true,this,new QCallback<String>(){
+@Override
+public void onError(int code,@NonNull String msg){}
+@Override
+public void onSuccess(@Nullable String data){}
+        });
 ```
+
 方法原型
+
 ```java
 /**
  * 拉起授权页&获取token
@@ -113,38 +132,51 @@ QAuth.openLoginAuth(true, this, new QCallback<String>() {
  * @param activity              当前activity
  * @param callback              操作回调
  */
-public static void openLoginAuth(Boolean isDestroyWhenCallback, Activity activity, QCallback<String> callback)
+public static void openLoginAuth(Boolean isDestroyWhenCallback,Activity activity,QCallback<String> callback)
 ```
+
 当callback回调成功会获取到置换手机号所需的token。请参考「服务端」文档来实现获取手机号码的步骤
 
 ### 其他api
+
 #### 关闭授权页面
+
 ```java
 QAuth.closeAuthActivity()
 ```
+
 方法原型
+
 ```java
 public static void closeAuthActivity()
 ```
 
-#### 设置协议勾选状态
+#### 设置协议
+
 需要在授权页activity创建后并且未销毁的情况下调用。
 
 示例代码
+
 ```java
 QAuth.setPrivacyCheckBoxValue(false)
 ```
+
 方法原型
+
 ```java
 public static void setPrivacyCheckBoxValue(boolean state) 
 ```
 
 #### 清理预取号缓存
+
 示例代码
+
 ```java
 QAuth.clearScripCache(this)
 ```
+
 方法原型
+
 ```java
 /**
  * @param context 安卓上下文
@@ -153,11 +185,15 @@ public static void clearScripCache(Context context)
 ```
 
 #### 获取运营商类型
+
 示例代码
+
 ```kotlin
-String operatorType = QAuth.getOperatorType(this)
+String operatorType = QAuth . getOperatorType (this)
 ```
+
 方法原型
+
 ```java
 /**
  * @param context
@@ -167,12 +203,16 @@ public static String getOperatorType(Context context)
 ```
 
 #### 设置预取号超时时间
+
 不建议设置小于4的值，否则可能会导致超时的概率增加。
 示例代码
+
 ```java
 QAuth.setTimeOutForPreLogin(3)
 ```
+
 方法原型
+
 ```java
 /**
  * @param timeSecond 秒
@@ -180,6 +220,23 @@ QAuth.setTimeOutForPreLogin(3)
 public static void setTimeOutForPreLogin(int timeSecond) 
 ```
 
+#### 设置UI事件回调
+
+```kotlin
+QAuth.setUIEventListener(object : UIEventListener {
+    override fun onPrivacyCheckBoxStateChange(checked: Boolean) {
+        Log.d("UIEventListener","隐私协议勾选框同意状态变化 $checked") 
+    }
+    override fun loginBtnClicked() {
+        Log.d("UIEventListener","登陆按钮点击事件")
+    }
+})
+```
+方法原型
+
+```java
+ public static void setUIEventListener(UIEventListener listener)
+```
 
 ## 授权页界面配置
 
@@ -192,15 +249,20 @@ public static void setTimeOutForPreLogin(int timeSecond)
 <img src="http://qrnlrydxa.hn-bkt.clouddn.com/onekeylogin/WechatIMG36.jpeg" width=256 height=512 />
 <img src="http://qrnlrydxa.hn-bkt.clouddn.com/onekeylogin/WechatIMG38.jpeg" width=512 height=255 />
 
-**注意：开发者不得将授权页面的登录按钮、隐私栏、号码栏内容隐藏、覆盖，对于接入七牛一键登录SDK并上线的应用，我方和运营商会对授权页面做审查，如果有出现未按要求设计授权页面，我方有权将应用的一键登录功能下线。
+*
+*注意：开发者不得将授权页面的登录按钮、隐私栏、号码栏内容隐藏、覆盖，对于接入七牛一键登录SDK并上线的应用，我方和运营商会对授权页面做审查，如果有出现未按要求设计授权页面，我方有权将应用的一键登录功能下线。
 登录按钮ID：qn_btn_one_key_login
 隐私栏ID：qn_ll_privacy、qn_checkbox_privacy_status、qn_tv_privacy_text
-号码栏ID：qn_tv_per_code** 
+号码栏ID：qn_tv_per_code**
 
 ### 自定义修改授权页布局修改
-步骤一 、拷贝[qlogin_activity_quick_login.xml](https://github.com/pili-engineering/QAuth_Android/blob/main/app/src/main/res/layout/qlogin_activity_quick_login.xml)并重命名至你的项目res->layout下
+
+步骤一
+、拷贝[qlogin_activity_quick_login.xml](https://github.com/pili-engineering/QAuth_Android/blob/main/app/src/main/res/layout/qlogin_activity_quick_login.xml)
+并重命名至你的项目res->layout下
 按需修改样式
 步骤二 、按需设置配置项目
+
 ``` java
 QUIConfig uiConfig = new QUIConfig();
 
@@ -223,26 +285,8 @@ statusBarConfig.statusBarColor = Color.parseColor("#FFF15959");
 loginPage.statusBarConfig = statusBarConfig;
 //自定义勾选隐私协议提示
 loginPage.checkTipText = "请勾选隐私协议";
- //使用代码方式配置协议-（也可以在xml配置-代码配置优先级高于xml
-loginPage.privacyTextTip = "同意 %s 和 %s 并授权获取本机号码"；
-LoginPage loginPage = new LoginPage();
-loginPage.privacyList = new ArrayList<>();
-loginPage.privacyList.add(new Privacy(
-        "《七牛云服务用户协议》",
-        Color.parseColor("#FF6200EE"),
-        "https://www.qiniu.com/privacy-right"
-));
-loginPage.privacyList.add(new Privacy(
-        "《七牛云服务用户协议》",
-        Color.parseColor("#FF6200EE"),
-        "https://www.qiniu.com/privacy-right"
-));
-//设置跳转隐私协议拦截
-loginPage.privacyClickListener = (context, url, privacyTittle) -> {
-    //返回是否拦截跳转
-    return false;
-};
-                 
+//隐私协议链接是否带下划线(如果xml配置了链接和下划线会覆盖代码设置
+isPrivacyTextUnderlineText = true
 //设置登录页面
 uiConfig.loginPage = loginPage;
 
@@ -254,14 +298,14 @@ privacyPage.statusBarConfig = statusBarConfig;
 privacyPage.isVerticalActivity = true;
 //自定义布局文件
 privacyPage.customLayoutID = R.layout.custom_activity_privacy;
-
 //设置协议页面
 uiConfig.privacyPage = privacyPage;
 
 QAuth.setUIConfig(uiConfig);
 ``` 
+
 ### 自定义隐私协议
-xml中静态设置如下（也可以在代码中动态设置）
+
 ``` 
 <com.qiniu.qlogin_core.view.PrivacyTextView
     android:gravity="center"
@@ -271,6 +315,7 @@ xml中静态设置如下（也可以在代码中动态设置）
     android:layout_width="wrap_content"
     android:textColor="#222222"
     android:textSize="11sp"
+    app:isUnderlineText="false"
     app:innerPrivacyColor="#FFF15959"
     app:privacy_color1="@color/purple_500"
     app:privacy_color2="@color/teal_700"
@@ -283,20 +328,22 @@ xml中静态设置如下（也可以在代码中动态设置）
 
 配置内置协议的属性和自定义协议的属性，最多支持配置4个自定义协议
 
-| 属性              | 格式   | 描述                                           |
-|:------------------|--------|------------------------------------------------|
-| privacy_tip       | string | 显示文本，协议名字用%s代替（预留内置一个协议占位） |
-| innerPrivacyColor | color  | 内置协议的颜色                                 |
-| privacy_text1     | string | 自定义协议1名称                                |
-| privacy_color1    | color  | 自定义协议1颜色                                |
-| privacy_url1      | string | 定义协议1跳转路径                              |
-| privacy_text...   |        |                                                |
-
+| 属性                | 格式      | 描述                         |
+|:------------------|---------|----------------------------|
+| privacy_tip       | string  | 显示文本，协议名字用%s代替（预留内置一个协议占位） |
+| innerPrivacyColor | color   | 内置协议的颜色                    |
+| privacy_text1     | string  | 自定义协议1名称                   |
+| privacy_color1    | color   | 自定义协议1颜色                   |
+| privacy_url1      | string  | 定义协议1跳转路径                  |
+| privacy_text...   |         |                            |
+| isUnderlineText   | boolean | 链接文本是否带下划线                 |
 
 ### 混淆
+
 aar中自带混淆文件无需配置
 
-###  资源压缩过滤
+### 资源压缩过滤
+
 如果使用AndResGuard资源压缩，需添加过滤，参考demo示例：
 
 ```
@@ -305,7 +352,9 @@ aar中自带混淆文件无需配置
 "R.layout.layout_shanyan*",
 "R.id.shanyan_view*",
 ```
+
 如果使用系统shrinkResources true，需要在raw/keep里面配置资源过滤keep.xml：
+
 ```<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:keep="R.anim.umcsdk*,
     R.drawable.umcsdk*,
@@ -328,7 +377,7 @@ sdk错误码
 |10001018|无网络（缺少时间参数）|
 |10001021|运营商信息获取失败（accessToken失效）|
 |10001023|预初始化失败|
-|10001025|非联通号段（目前联通号段 46001 46006 46009）针对联通定制版|
+|10001025|非联通号段（目前联通号段 46001 46006 46009）针对联通定制版|
 |10001031|请求频繁|
 |10001032|账户禁用|
 |20010001|用户模块错误码|
@@ -402,13 +451,14 @@ sdk错误码
 |101001|授权码不能为空使用SDK|调用置换接口时没有填入授权码|
 |101002|认证的手机号不能为空使用SDK|认证置换时没有填入需要认证的手机号码|
 |101003|UiConfig|不能为空调用openActivity|
-|101004|ApiKey 或PublicKey 不能为空|未进行初始化，调用SDKManager.init()进行初始化|
+|101004|ApiKey 或PublicKey 不能为空|未进行初始化，调用SDKManager.init()进行初始化|
 |101005|超时|超过了接入方设置的时间|
 |101006|公钥出错|公钥错误，请核对配置的公钥是否与申请的公钥一致|
 |101007|用户取消登录|免密登录时，进入授权页执行了返回操作|
-|102001|选择流量通道失败|<p>取号功能必须使用流量访问，在wifi 和流量同时开启的情况下，</p><p>sdk 会选择使用流量进行访问，此返回码代表切换失败！（受不</p><p>同机型的影响）</p>|
-|201001|操作频繁请稍后再试|超出10 分钟之内只能访问30 次的限制|
-|302001|SDK 解密异常|服务端返回数据时sdk 会进行解密操作，如果解密出错则出现此错误|
+|102001|选择流量通道失败|<p>取号功能必须使用流量访问，在wifi 和流量同时开启的情况下，</p><p>sdk
+会选择使用流量进行访问，此返回码代表切换失败！（受不</p><p>同机型的影响）</p>|
+|201001|操作频繁请稍后再试|超出10 分钟之内只能访问30 次的限制|
+|302001|SDK 解密异常|服务端返回数据时sdk 会进行解密操作，如果解密出错则出现此错误|
 |302002|网络访问异常sdk|网络请求异常|
 |302003|服务端数据格式出错|服务端返回数据格式错误|
 |10000|请求超时|移动网络复杂，超时时间设置过短时，容易发生超时错误。 建议超时时间设置的长一点，3秒以上。|
@@ -429,7 +479,7 @@ sdk错误码
 |10026|ios sdk用到的socket部分错误||
 |100|应用未授权||
 |101|应用秘钥错误|该应用秘钥即为client\_secret。<br>1\. 核对**应用秘钥**是否正确<br>2\. 联系客服详细处理|
-|102|应用无效|1\. client\_id字段未传<br>2\. client\_id字段值错误|
+|102|应用无效|1\. client\_id字段未传<br>2\. client\_id字段值错误|
 |~~103~~|~~应用未授权该IP访问~~||
 |104|应用访问次数不足||
 |105|应用包名不正确|注册应用时填写的包名与实际包名不符，核对包名报备是否正确|
@@ -437,7 +487,9 @@ sdk错误码
 |107|商户状态非法|商户处于非正常状态|
 |108|商户请求次数超限额||
 |200|tokenId无效||
-|201|token已失效|登录接口token无效标识。<br>token即预取号获得的accessCode值，默认有效期**30min**且**单次有效**。<br>可能原因如下：<br>1\. 已过有效期；<br>2\. 已被消费；<br>3\. 使用不存在的token；<br>4\. 应用标识与token不匹配。例：用应用标识A获取token，而用应用标识B去消费|
+|201|token已失效|登录接口token无效标识。<br>token即预取号获得的accessCode值，默认有效期**30min**且*
+*单次有效**。<br>可能原因如下：<br>1\. 已过有效期；<br>2\. 已被消费；<br>3\. 使用不存在的token；<br>4\.
+应用标识与token不匹配。例：用应用标识A获取token，而用应用标识B去消费|
 |202|token未授权该应用访问||
 |203|登录鉴权级别不满足接口鉴权要求||
 |300|接口未开放||
@@ -446,12 +498,14 @@ sdk错误码
 |303|应用访问接口次数超日限额||
 |400|请求参数为空||
 |401|请求参数不完整|核对必填参数：<br>1\. 是否传值<br>2\. 字段名是否正确|
-|402|请求参数非法|1\. timeStamp间隔时间太久<br>2\. 其他参数传了不可识别的值：请检查请求参数是否与接口文档相符|
+|402|请求参数非法|1\. timeStamp间隔时间太久<br>2\. 其他参数传了不可识别的值：请检查请求参数是否与接口文档相符|
 |600|请求非法||
 |1000|请求解析错误|服务端无法解析请求参数，请检查请求参数是否与接口文档相符|
 |1001|请求已失效|请求时间戳与中国标准时间间隔太久。<br>处理建议：请使用中国标准时间|
 |1002|验签失败|1\. 核对sign生成规则<br>2\. 核对调用生成sign的method<br>3\. 核对**公私钥**是否匹配|
-|1003|授权码已过期|认证接口token失效标识。<br>token即预取号获得的accessCode值，默认有效期**30min**且**单次有效**。<br>可能原因如下：<br>1\. 已过有效期；<br>2\. 已被消费；<br>3\. 使用不存在的token；<br>4\. 应用标识与token不匹配。例：用应用标识A获取token，而用应用标识B去消费|
+|1003|授权码已过期|认证接口token失效标识。<br>token即预取号获得的accessCode值，默认有效期**30min**且*
+*单次有效**。<br>可能原因如下：<br>1\. 已过有效期；<br>2\. 已被消费；<br>3\. 使用不存在的token；<br>4\.
+应用标识与token不匹配。例：用应用标识A获取token，而用应用标识B去消费|
 |1004|加密方式不支持||
 |1005|RSA加密错误||
 |1010|服务间访问失败||
@@ -465,7 +519,7 @@ sdk错误码
 |~~3007~~|~~请求认证接口异常~~||
 |~~3009~~|~~非联通号码~~||
 |3010|网关取号错误||
-|3011|源IP鉴权失败|1\. 当前非联通数据网络<br>2\. APN为3gwap，目前仅支持3gnet<br>3\. 物联网卡|
+|3011|源IP鉴权失败|1\. 当前非联通数据网络<br>2\. APN为3gwap，目前仅支持3gnet<br>3\. 物联网卡|
 |3012|网关取号失败|服务内部错误，联系客服详细处理|
 |3013|电信网关取号失败||
 |3014|电信网关取号错误||
@@ -475,7 +529,7 @@ sdk错误码
 |3018|生成授权码失败||
 |3032|APPID不存在||
 |3050|取号网关内部错误||
-|3051|公网IP校验错误|1\. 当前非联通数据网络<br>2\. APN为3gwap，目前仅支持3gnet<br>3\. 物联网卡|
+|3051|公网IP校验错误|1\. 当前非联通数据网络<br>2\. APN为3gwap，目前仅支持3gnet<br>3\. 物联网卡|
 |3052|公网IP无法找到对应省份||
 |~~3053~~|~~公网IP省份编码与输入不符~~||
 |3054|私网IP校验错误||
