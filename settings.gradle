@@ -1,4 +1,4 @@
 
-rootProject.name = "QAuth_android"
+rootProject.name = "QAuth_Android"
 include ':app'
 include ':sdk-aar'
